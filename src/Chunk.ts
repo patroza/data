@@ -353,6 +353,14 @@ class ChunkImpl<A> implements Chunk<A> {
       }
     }
   }
+
+  toJSON() {
+    return this.toReadonlyArray()
+  }
+
+  toString() {
+    return `Chunk<${this.toReadonlyArray()}>`
+  }
 }
 
 /** @internal */
