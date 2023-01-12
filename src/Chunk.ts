@@ -359,7 +359,7 @@ class ChunkImpl<A> implements Chunk<A> {
   }
 
   toString() {
-    return `Chunk<${this.toReadonlyArray()}>`
+    return `Chunk(${this.toReadonlyArray()})`
   }
 }
 
