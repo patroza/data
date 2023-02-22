@@ -17,7 +17,7 @@ export class TagImpl<Service> implements C.Tag<Service>, Equal.Equal {
     this.key = key ?? Symbol()
   }
   [Equal.symbol](that: Equal.Equal): boolean {
-    return isTag(that) && Equal.equals(that.key)(this.key)
+    return isTag(that) && this.key === that.key
   }
   [Hash.symbol](): number {
     return Hash.hash(this.key)
