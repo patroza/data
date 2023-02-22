@@ -1,16 +1,12 @@
-import * as Equal from "@effect/data/Equal"
-import * as Hash from "@effect/data/Hash"
+export const s = Symbol()
 
-export function makeEqualClass() {
+export function makeClass() {
   return class {
-    static [Equal.symbol](_that: any) {
+    static [s]() {
       return true
-    }
-    static [Hash.symbol]() {
-      return 0
     }
   }
 }
 
 // fine
-export class EqualTest1 extends makeEqualClass() {}
+export class Test1 extends makeClass() {}
