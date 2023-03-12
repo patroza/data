@@ -85,6 +85,7 @@ describe.concurrent("Data", () => {
     expect(c.name).toBe("Foo")
     expect(Equal.equals(a, b)).toBe(true)
     expect(Equal.equals(a, c)).toBe(false)
+    expect(Object.keys(a)).toEqual(["name"])
   })
 
   it("tagged class", () => {
@@ -99,6 +100,7 @@ describe.concurrent("Data", () => {
     expect(c.name).toBe("Foo")
     expect(Equal.equals(a, b)).toBe(true)
     expect(Equal.equals(a, c)).toBe(false)
+    expect(Object.keys(a)).toEqual(["_tag", "name"])
   })
 
   it("tagged - empty", () => {
