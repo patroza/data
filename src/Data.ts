@@ -48,25 +48,27 @@ const protoArr: Equal.Equal = (() => {
   return Object.setPrototypeOf(proto, Array.prototype)
 })()
 
-const protoStruct: Equal.Equal = (() => {
-  const proto = {
-    [Hash.symbol](this: Equal.Equal) {
-      return Hash.structure(this)
-    },
-    [Equal.symbol](this: Equal.Equal, that: Equal.Equal) {
-      const selfKeys = Object.keys(this)
-      const thatKeys = Object.keys(that as object)
-      if (selfKeys.length !== thatKeys.length) {
+export const makeProtoStruct: () => Equal.Equal = () => ({
+  [Hash.symbol](this: Equal.Equal) {
+    return Hash.structure(this)
+  },
+  [Equal.symbol](this: Equal.Equal, that: Equal.Equal) {
+    const selfKeys = Object.keys(this)
+    const thatKeys = Object.keys(that as object)
+    if (selfKeys.length !== thatKeys.length) {
+      return false
+    }
+    for (const key of selfKeys) {
+      if (!(key in (that as object) && Equal.equals(this[key], (that as object)[key]))) {
         return false
       }
-      for (const key of selfKeys) {
-        if (!(key in (that as object) && Equal.equals(this[key], (that as object)[key]))) {
-          return false
-        }
-      }
-      return true
     }
+    return true
   }
+})
+
+const protoStruct: Equal.Equal = (() => {
+  const proto = makeProtoStruct()
   return Object.setPrototypeOf(proto, Object.prototype)
 })()
 
@@ -137,10 +139,15 @@ export const TaggedClass = <Key extends string>(
   tag: Key
 ) =>
   <A extends Record<string, any>>(): new(args: Omit<A, keyof Equal.Equal>) => Data<A & { _tag: Key }> => {
-    class Base extends (Class<A>() as any) {
+    return class {
       readonly _tag = tag
-    }
-    return Base as any
+      constructor(args: Omit<A, keyof Equal.Equal>) {
+        Object.assign(this, args)
+      }
+      static {
+        Object.assign(this.prototype, makeProtoStruct())
+      }
+    } as any
   }
 
 /**
@@ -150,27 +157,12 @@ export const TaggedClass = <Key extends string>(
  * @category constructors
  */
 export const Class = <A extends Record<string, any>>(): new(args: Omit<A, keyof Equal.Equal>) => Data<A> => {
-  class Base {
+  return class {
     constructor(args: Omit<A, keyof Equal.Equal>) {
       Object.assign(this, args)
     }
-
-    [Hash.symbol](this: Equal.Equal) {
-      return Hash.structure(this)
+    static {
+      Object.assign(this.prototype, makeProtoStruct())
     }
-    [Equal.symbol](this: Equal.Equal, that: Equal.Equal) {
-      const selfKeys = Object.keys(this)
-      const thatKeys = Object.keys(that as object)
-      if (selfKeys.length !== thatKeys.length) {
-        return false
-      }
-      for (const key of selfKeys) {
-        if (!(key in (that as object) && Equal.equals(this[key], (that as object)[key]))) {
-          return false
-        }
-      }
-      return true
-    }
-  }
-  return Base as any
+  } as any
 }
